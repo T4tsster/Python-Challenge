@@ -3,9 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
+
+# Tell app where our database: /// -> relative path of db file
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
+
+#  Create DB model
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
@@ -26,10 +30,11 @@ def index():
             db.session.commit()
             return redirect('/')
         except:
-            return 'ERROR: Adding your task'  
+            return 'ERROR: Adding your task'
     else:
         tasks = Todo.query.order_by(Todo.date_created).all()
-        return render_template('index.html', tasks = tasks)
+        return render_template('index.html', tasks=tasks)
+
 
 @app.route('/delete/<int:id>')
 def delete(id):
@@ -42,13 +47,14 @@ def delete(id):
     except:
         return 'ERROR: Deleting that task'
 
+
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
 def update(id):
     task = Todo.query.get_or_404(id)
 
     if request.method == 'POST':
         task.content = request.form['content']
-        
+
         try:
             db.session.commit()
             return redirect('/')
